@@ -13,12 +13,22 @@ int main() {
     screen s;
     color c;
     c.green = 255;
+    c.red = 0;
+    c.blue = 0;
     struct matrix *edges;
 
     edges = new_matrix(4, 4);
-    add_edge(edges, 0, 250, 0, 250, 0, 0);
-    draw_line(0, 100,100,0,s, c);
-    print_matrix(edges);
+    int i = 0;
+    int j = 0;
+    while(i < 50){
+      add_edge(edges,j,250,0,j,500,0);
+      add_edge(edges,250,250,0,j,500,0);
+      i++;
+      j+= 10;
+    }
+    
+    draw_lines(edges,s, c);
     display(s);
+    save_ppm(s,"main.png");
     free_matrix( edges );
 }  

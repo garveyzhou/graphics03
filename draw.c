@@ -52,98 +52,83 @@ void draw_lines( struct matrix * points, screen s, color c) {
     }   
 }
 
+//using brians line algo
+void draw_line(int x0, int y0, int x1, int y1, screen s, color c)
+{
+    int x, y;
+    int dx, dy;
+    /* D = Ax + By + C, where A = dy, B = -dx, and C is irrelevant */
+    int A, B, D;
+    if (x1 < x0)
+    {
+        int temp = x0;
+        x0 = x1;
+        x1 = temp;
 
+        temp = y0;
+        y0 = y1;
+        y1 = temp;
+    }
+    x = x0;
+    y = y0;
+    dx = x1 - x0;
+    dy = y1 - y0;
 
-
-void draw_line(int x0, int y0, int x1, int y1, screen s, color c) {
-
-  int x, y, d, A, B;
-  //swap points if going right -> left
-  int xt, yt;
-  if (x0 > x1) {
-    xt = x0;
-    yt = y0;
-    x0 = x1;
-    y0 = y1;
-    x1 = xt;
-    y1 = yt;
-  }
-  
-  x = x0;
-  y = y0;
-  A = 2 * (y1 - y0);
-  B = -2 * (x1 - x0);  
-
-  //octants 1 and 8
-  if ( abs(x1 - x0) >= abs(y1 - y0) ) {
-
-    //octant 1    
-    if ( A > 0 ) {
-      
-      d = A + B/2;      
-      while ( x < x1 ) {
-	plot( s, c, x, y );
-	if ( d > 0 ) {
-	  y+= 1;
-	  d+= B;
-	}
-	x++;
-	d+= A;
-      } //end octant 1 while
-      plot( s, c, x1, y1 );
-    } //end octant 1
-
-    //octant 8
-    else {
-      d = A - B/2;
-      
-      while ( x < x1 ) {
-	//printf("(%d, %d)\n", x, y);
-	plot( s, c, x, y );
-	if ( d < 0 ) {
-	  y-= 1;
-	  d-= B;
-	}
-	x++;
-	d+= A;
-      } //end octant 8 while
-      plot( s, c, x1, y1 );
-    } //end octant 8
-  }//end octants 1 and 8
-
-  //octants 2 and 7
-  else {
-    
-    //octant 2    
-    if ( A > 0 ) {
-      d = A/2 + B;      
-
-      while ( y < y1 ) {
-	plot( s, c, x, y );
-	if ( d < 0 ) {
-	  x+= 1;
-	  d+= A;
-	}
-	y++;
-	d+= B;
-      } //end octant 2 while
-      plot( s, c, x1, y1 );
-    } //end octant 2
-
-    //octant 7
-    else {
-      d = A/2 - B;
-      
-      while ( y > y1 ) {
-	plot( s, c, x, y );
-	if ( d > 0 ) {
-	  x+= 1;
-	  d+= A;
-	}
-	y--;
-	d-= B;
-      } //end octant 7 while
-      plot( s, c, x1, y1 );
-    } //end octant 7   
-  }//end octants 2 and 7  
-} //end draw_line
+    /* Note everything is scaled by 2 to avoid the pesky floating point number 1/2 */
+    A = dy * 2;
+    B = -dx * 2;
+    if (abs(dx) >= abs(dy)) // -1 <= m <= 1
+    {
+        int cy = 1;
+        if (dy < 0)
+        {
+            cy = -1;
+            A *= -1;
+        }
+        D = 2 * A + B;
+        while (x <= x1)
+        {
+            plot(s, c, x, y);
+            if (D > 0) // next midpoint is below the line
+            {
+                y += cy;
+                D += B;
+            }
+            x++;
+            D += A;
+        }
+    }
+    else
+    {
+        if (dy >= 0)
+        {
+            D = A + 2 * B;
+            while (y <= y1)
+            {
+                plot(s, c, x, y);
+                if (D < 0) // next midpoint is above the line
+                {
+                    x++;
+                    D += A;
+                }
+                y++;
+                D += B;
+            }
+        }
+        else
+        {
+            D = A - 2 * B;
+            while (y >= y1)
+            {
+                plot(s, c, x, y);
+                if (D > 0) // next midpoint is below the line
+                {
+                    x++;
+                    D += A;
+                }
+                y--;
+                D -= B;
+            }
+        }
+    }
+}
