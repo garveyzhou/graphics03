@@ -68,7 +68,7 @@ a*b -> b
 void matrix_mult(struct matrix *a, struct matrix *b) {
   //a is 4x4, b 4xn
   int i = 0;
-  struct matrix * c= new_matrix(b->rows,b->cols);
+  struct matrix * c= new_matrix(a->rows,b->cols);
   while( i < b->rows){
   int j = 0;
     while(j < b->cols){
